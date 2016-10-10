@@ -1,31 +1,48 @@
-##
-Using micropython to build a bot
-##
+# Using micropython to build a turtlebot
 
-http://micropython.org/download/#esp8266
-
-1. Erasing old firmware
+1. Install pip
+```
+$ sudo easy_install pip
+```
+2. Install esptool
+```
+$ pip install esptool
+```
+3. Erasing old firmware
+```
+$ sudo ./esptool.py --port /dev/ttyUSB0 erase_flash
+```
+4. flashing new firmware [source](http://micropython.org/download/#esp8266)
 
 ```
-sudo ./esptool.py --port /dev/ttyUSB0 erase_flash
+$ sudo ./esptool.py --port /dev/ttyUSB0 write_flash --flash_size=8m 0 esp8266-20160809-v1.8.3.bin
 ```
-
-1. flashing new firmware
-
+5. Connect a serial port terminal such as minicom or realterm, connect using 115200 baudrate
+Confirm you receive a python prompt '>>>'
+6. install ampy: 
 ```
-sudo ./esptool.py --port /dev/ttyUSB0 write_flash --flash_size=8m 0 esp8266-20160809-v1.8.3.bin
+$ pip install adafruit-ampy
 ```
-
-1. connect a seriala port terminal such as minicom or realterm, connect using 115200 baudrate
-
-Confirm you receive a python prompt
-
-1. install ampy: pip install adafruit-ampy
-
+7. Run a ampy command to check it's working correctly
 ```
-sudo ampy --port /dev/ttyUSB0 ls 
+$ sudo ampy --port /dev/ttyUSB0 run test.py
 ```
-should return ['boot.py']
-
+output:
 ```
-sudo ampy --port /dev/ttyUSB0 put 
+Hello world! I can count to 10:
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+```
+8. Now copy a main.py which is executed everytime the esp8266 starts up
+```
+$ sudo ampy --port /dev/ttyUSB0 put blink.py /main.py
+```
+'Reset' ESP8266 module to start the new program.
