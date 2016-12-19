@@ -2,23 +2,22 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
+#include <Servo.h>
+
+Servo myservo;
 
 const char* ssid = "IkeDev";
 const char* password = "onionr!ngs33";
 
 ESP8266WebServer server(80);
 
-const int led = 2;
-const int pwm = 5;
+const int servo_pin = 5;
 
 void handleRoot() {
-  digitalWrite(led, 1);
   server.send(200, "text/plain", "hello from esp8266!");
-  digitalWrite(led, 0);
 }
 
 void handleNotFound(){
-  digitalWrite(led, 1);
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server.uri();
@@ -31,20 +30,18 @@ void handleNotFound(){
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
-  digitalWrite(led, 0);
 }
 
 void handleLed(){
   String response = "";
   
   if(server.args() > 0) {
-    // Assume arg 1 is pwm level
+    // Assume arg 1 is servo_pin angle (in degrees)
     String arg = server.arg(0);
-    int value = 1024 - arg.toInt();
-    analogWrite(led, value);
-    analogWrite(pwm, value);
+    int value = arg.toInt();
+    myservo.write(value);
 
-    response = "LED value: ";
+    response = "Servo pos: ";
     response += arg;
       
     server.send(200, "text/plain", response.c_str());
@@ -52,8 +49,8 @@ void handleLed(){
 }
 
 void setup(void){
-  pinMode(led, OUTPUT);
-  digitalWrite(led, 0);
+  myservo.attach(servo_pin);
+  
   Serial.begin(115200);
   WiFi.begin(ssid, password);
   Serial.println("");
