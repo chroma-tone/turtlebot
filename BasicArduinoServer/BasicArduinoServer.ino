@@ -3,12 +3,13 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-const char* ssid = "Ike";
+const char* ssid = "IkeDev";
 const char* password = "onionr!ngs33";
 
 ESP8266WebServer server(80);
 
 const int led = 2;
+const int pwm = 5;
 
 void handleRoot() {
   digitalWrite(led, 1);
@@ -34,17 +35,19 @@ void handleNotFound(){
 }
 
 void handleLed(){
+  String response = "";
+  
   if(server.args() > 0) {
-    // Assume arg 1 is on or off
-    if(server.arg(0) == "on"){
-      digitalWrite(led, LOW);
-      server.send(200, "text/plain", "LED is on!");
-    }
+    // Assume arg 1 is pwm level
+    String arg = server.arg(0);
+    int value = 1024 - arg.toInt();
+    analogWrite(led, value);
+    analogWrite(pwm, value);
 
-    if(server.arg(0) == "off"){
-      digitalWrite(led, HIGH);
-      server.send(200, "text/plain", "LED is off!");
-    }
+    response = "LED value: ";
+    response += arg;
+      
+    server.send(200, "text/plain", response.c_str());
   }
 }
 
