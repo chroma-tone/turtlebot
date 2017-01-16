@@ -7,7 +7,7 @@
 
     <script>
 function setSpeed(speed) {
-    $.get("http://192.168.1.180/led?value=" + speed, function(data) {
+    $.get("/led?value=" + speed, function(data) {
         $('#current_speed').html(data);
     });
 }
@@ -27,4 +27,3 @@ function setSpeed(speed) {
     <p>
     <div id="current_speed">Current Speed:</div>
 </body>
-

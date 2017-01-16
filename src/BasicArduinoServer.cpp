@@ -3,18 +3,27 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 #include <Servo.h>
+#include "index_html.h"
+
 
 Servo myservo;
 
-const char* ssid = "IkeDev";
-const char* password = "onionr!ngs33";
+const char* ssid = "Cortado";
+const char* password = "Cork4Shri";
+
+//const char* ssid = "IkeDev";
+//const char* password = "onionr!ngs33";
 
 ESP8266WebServer server(80);
 
 const int servo_pin = 5;
 
 void handleRoot() {
-  server.send(200, "text/plain", "hello from esp8266!");
+  // Null terminate index.html
+  web_index_html[web_index_html_len] = '\0';
+  String response((const char*)web_index_html);
+
+  server.send(200, "text/html", response);
 }
 
 void handleNotFound(){
@@ -34,7 +43,7 @@ void handleNotFound(){
 
 void handleLed(){
   String response = "";
-  
+
   if(server.args() > 0) {
     // Assume arg 1 is servo_pin angle (in degrees)
     String arg = server.arg(0);
@@ -43,14 +52,14 @@ void handleLed(){
 
     response = "Servo pos: ";
     response += arg;
-      
+
     server.send(200, "text/plain", response.c_str());
   }
 }
 
 void setup(void){
   myservo.attach(servo_pin);
-  
+
   Serial.begin(115200);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -72,7 +81,7 @@ void setup(void){
 
   server.on("/", handleRoot);
   server.on("/led", handleLed);
-  
+
   server.on("/inline", [](){
     server.send(200, "text/plain", "this works as well");
   });
