@@ -5,18 +5,24 @@
 #include <Servo.h>
 #include "index_html.h"
 
+Servo left_servo;
+Servo right_servo;
 
-Servo myservo;
-
+// Jeremy's home network
 const char* ssid = "Cortado";
 const char* password = "Cork4Shri";
 
+// ikeGPS WiFi
 //const char* ssid = "IkeDev";
 //const char* password = "onionr!ngs33";
 
 ESP8266WebServer server(80);
 
-const int servo_pin = 5;
+const int left_servo_pin = 4;
+const int right_servo_pin = 5;
+
+const int left_servo_offset = 1;
+const int right_servo_offset = 4;
 
 void handleRoot() {
   // Null terminate index.html
@@ -45,10 +51,11 @@ void handleLed(){
   String response = "";
 
   if(server.args() > 0) {
-    // Assume arg 1 is servo_pin angle (in degrees)
+    // Assume arg 1 is servo angle (in degrees)
     String arg = server.arg(0);
     int value = arg.toInt();
-    myservo.write(value);
+    left_servo.write(value + left_servo_offset);
+    right_servo.write(value + right_servo_offset);
 
     response = "Servo pos: ";
     response += arg;
@@ -58,7 +65,8 @@ void handleLed(){
 }
 
 void setup(void){
-  myservo.attach(servo_pin);
+  left_servo.attach(left_servo_pin);
+  right_servo.attach(right_servo_pin);
 
   Serial.begin(115200);
   WiFi.begin(ssid, password);
@@ -81,11 +89,6 @@ void setup(void){
 
   server.on("/", handleRoot);
   server.on("/led", handleLed);
-
-  server.on("/inline", [](){
-    server.send(200, "text/plain", "this works as well");
-  });
-
   server.onNotFound(handleNotFound);
 
   server.begin();
