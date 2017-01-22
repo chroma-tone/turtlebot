@@ -8,21 +8,19 @@
 Servo left_servo;
 Servo right_servo;
 
-// Jeremy's home network
+// Wifi connection details
+// TODO: Update to use separate .h file that's not in Version Control
 const char* ssid = "Cortado";
 const char* password = "Cork4Shri";
-
-// ikeGPS WiFi
-//const char* ssid = "IkeDev";
-//const char* password = "onionr!ngs33";
 
 ESP8266WebServer server(80);
 
 const int left_servo_pin = 4;
 const int right_servo_pin = 5;
 
-const int left_servo_offset = 1;
-const int right_servo_offset = 4;
+// TODO: Web control for fine adjust of zero trim
+const int left_servo_zero = 91;
+const int right_servo_zero = 94;
 
 void handleRoot() {
   // Null terminate index.html
@@ -47,21 +45,32 @@ void handleNotFound(){
   server.send(404, "text/plain", message);
 }
 
-void handleLed(){
+void handleSpeed(){
   String response = "";
 
-  if(server.args() > 0) {
-    // Assume arg 1 is servo angle (in degrees)
-    String arg = server.arg(0);
-    int value = arg.toInt();
-    left_servo.write(value + left_servo_offset);
-    right_servo.write(value + right_servo_offset);
+  if(server.args() > 1) {
+    // Assume arg 1 is left wheel speed (in degrees), and arg 2 is right speed
+    String left_arg = server.arg(0);
+    int left_speed = left_arg.toInt();
 
-    response = "Servo pos: ";
-    response += arg;
+    String right_arg = server.arg(1);
+    int right_speed = right_arg.toInt();
 
-    server.send(200, "text/plain", response.c_str());
+    // Right side gets negative speed since it's physically mounted the
+    // other way around.
+    left_servo.write(left_servo_zero + left_speed);
+    right_servo.write(right_servo_zero - right_speed);
+
+    response = "Left: ";
+    response += left_arg;
+    response += ", Right: ";
+    response += right_arg;
   }
+  else {
+    response = "Not enough arguments";
+  }
+
+  server.send(200, "text/plain", response.c_str());
 }
 
 void setup(void){
@@ -88,7 +97,7 @@ void setup(void){
   }
 
   server.on("/", handleRoot);
-  server.on("/led", handleLed);
+  server.on("/speed", handleSpeed);
   server.onNotFound(handleNotFound);
 
   server.begin();
