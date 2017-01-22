@@ -56,10 +56,10 @@ void handleSpeed(){
     String right_arg = server.arg(1);
     int right_speed = right_arg.toInt();
 
-    // Right side gets negative speed since it's physically mounted the
+    // Left side gets negative speed since it's physically mounted the
     // other way around.
-    left_servo.write(left_servo_zero + left_speed);
-    right_servo.write(right_servo_zero - right_speed);
+    left_servo.write(left_servo_zero - left_speed);
+    right_servo.write(right_servo_zero + right_speed);
 
     response = "Left: ";
     response += left_arg;
