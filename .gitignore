@@ -3,3 +3,4 @@
 .clang_complete
 .gcc-flags.json
 src/index_html.h
+.DS_Store
