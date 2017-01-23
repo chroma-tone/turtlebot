@@ -8,7 +8,7 @@
 
     <script>
       function setSpeed(left, right) {
-          $.get("/speed?left=" + left + "&right=" + right, function(data) {
+          $.get("http://192.168.1.117/speed?left=" + left + "&right=" + right, function(data) {
               $('#current_speed').html(data);
           });
       }
@@ -17,12 +17,24 @@
 
 <body>
 
-    <table style="width:300px" border="0">
-        <tr><td colspan="3"><center><h1>Turtlebot Web Control</h1></center></td></tr>
+    <table style="width:450px" border="0">
         <tr>
-            <td><button class="btn btn-primary btn-lg" style="width:100px" onclick="setSpeed('10', '10')">Forward</button></td>
-            <td><button class="btn btn-primary btn-lg" style="width:100px" onclick="setSpeed('0','0')">Stop</button></td>
-            <td><button class="btn btn-primary btn-lg" style="width:100px" onclick="setSpeed('-10','-10')">Back</button></td>
+          <td colspan="3"><center><h1>Turtlebot Web Control</h1></center></td>
+        </tr>
+        <tr>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('5','10')">Fwd Left</button></td>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('10', '10')">Forward</button></td>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('10','5')">Fwd Right</button></td>
+        </tr>
+        <tr>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('-10', '10')">Left Turn</button></td>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('0','0')">Stop</button></td>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('10','-10')">Right Turn</button></td>
+        </tr>
+        <tr>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('-5','-10')">Back Left</button></td>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('-10', '-10')">Back</button></td>
+            <td><button class="btn btn-primary btn-lg" style="width:150px" onclick="setSpeed('-10','-5')">Back Right</button></td>
         </tr>
    </table>
 

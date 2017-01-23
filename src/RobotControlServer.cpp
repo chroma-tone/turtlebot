@@ -15,12 +15,12 @@ const char* password = "Cork4Shri";
 
 ESP8266WebServer server(80);
 
-const int left_servo_pin = 4;
-const int right_servo_pin = 5;
+const int left_servo_pin = 5;
+const int right_servo_pin = 4;
 
 // TODO: Web control for fine adjust of zero trim
-const int left_servo_zero = 91;
-const int right_servo_zero = 94;
+const int left_servo_zero = 94;
+const int right_servo_zero = 91;
 
 void handleRoot() {
   // Null terminate index.html
@@ -56,10 +56,10 @@ void handleSpeed(){
     String right_arg = server.arg(1);
     int right_speed = right_arg.toInt();
 
-    // Left side gets negative speed since it's physically mounted the
+    // Right side gets negative speed since it's physically mounted the
     // other way around.
-    left_servo.write(left_servo_zero - left_speed);
-    right_servo.write(right_servo_zero + right_speed);
+    left_servo.write(left_servo_zero + left_speed);
+    right_servo.write(right_servo_zero - right_speed);
 
     response = "Left: ";
     response += left_arg;
