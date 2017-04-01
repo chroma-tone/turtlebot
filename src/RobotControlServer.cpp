@@ -4,14 +4,18 @@
 #include <ESP8266mDNS.h>
 #include <Servo.h>
 #include "index_html.h"
+#include "auth.h"
+#include "aes256.hpp"
+
 
 Servo left_servo;
 Servo right_servo;
 
+const char * ssid;
+const char * password;
+
 // Wifi connection details
 // TODO: Update to use separate .h file that's not in Version Control
-const char* ssid = "Cortado";
-const char* password = "Cork4Shri";
 
 ESP8266WebServer server(80);
 
