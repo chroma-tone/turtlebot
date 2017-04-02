@@ -5,14 +5,16 @@
 #include <Servo.h>
 #include "index_html.h"
 #include "auth.h"
-#include "aes256.hpp"
-
+#include <Crypto.h>
+#include <AES.h>
+#include <string.h>
 
 Servo left_servo;
 Servo right_servo;
 
 const char * ssid;
 const char * password;
+AES128 aes128;
 
 // Wifi connection details
 // TODO: Update to use separate .h file that's not in Version Control
@@ -77,11 +79,50 @@ void handleSpeed(){
   server.send(200, "text/plain", response.c_str());
 }
 
+void decryptWifiAuth(){
+  Serial.println("decrypting");
+  /*
+  .name        = "AES-128-ECB",
+    .key         = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F},
+    .plaintext   = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+                    0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF},
+    .ciphertext  = {0x69, 0xC4, 0xE0, 0xD8, 0x6A, 0x7B, 0x04, 0x30,
+                    0xD8, 0xCD, 0xB7, 0x80, 0x70, 0xB4, 0xC5, 0x5A}
+
+  */
+  const char ciphertext1[16]  = {0x69, 0xC4, 0xE0, 0xD8, 0x6A, 0x7B, 0x04, 0x30,
+                  0xD8, 0xCD, 0xB7, 0x80, 0x70, 0xB4, 0xC5, 0x5A};
+  const char keytext[16] = {0x5F,0x4D,0xCC,0x3B,0x5A,0xA7,0x65,0xD6,0x1D,0x83,0x27,0xDE,0xB8,0x82,0xCF,0x99};
+
+
+  Serial.println("setting key");
+  aes128.setKey((uint8_t *)keytext, sizeof keytext);
+  byte buffer[28];
+  uint8_t * ciphertextBytes;
+  Serial.println("decrypting cipher");
+  aes128.decryptBlock(buffer, (uint8_t *)ciphertext);
+
+  Serial.print("decrypted hex = ");
+  for (int i =0; i < 28 ; i++){
+    Serial.print( buffer[i], HEX);
+    Serial.print(" ");
+  }
+
+  Serial.print(" decrypted text = ");
+  char string[sizeof buffer];
+  memcpy(string, buffer, sizeof buffer);
+  string[sizeof buffer] = '\0';
+  password = string;
+  Serial.println(string);
+
+}
 void setup(void){
   left_servo.attach(left_servo_pin);
   right_servo.attach(right_servo_pin);
 
   Serial.begin(115200);
+  decryptWifiAuth();
   WiFi.begin(ssid, password);
   Serial.println("");
 

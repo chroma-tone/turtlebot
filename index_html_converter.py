@@ -30,4 +30,4 @@ def before_build_auth(source, target, env):
         print "warning no auth found. try running generate_password.py"
 
 env.AddPreAction("$BUILD_DIR/src/RobotControlServer.o", before_build_html)
-env.AddPreAction("$BUILD_DIR/src/RobotControlServer.o", before_build_auth)
+#env.AddPreAction("$BUILD_DIR/src/RobotControlServer.o", before_build_auth)
