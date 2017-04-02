@@ -5,4 +5,4 @@
 src/index_html.h
 .DS_Store
 password.txt
-arc/auth.h
+src/auth.h
