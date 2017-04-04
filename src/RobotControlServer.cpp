@@ -8,11 +8,11 @@
 #include <Crypto.h>
 #include <AES.h>
 #include <string.h>
+#include <Base64.h>
 
 Servo left_servo;
 Servo right_servo;
 
-const char * ssid;
 const char * password;
 AES128 aes128;
 
@@ -79,42 +79,41 @@ void handleSpeed(){
   server.send(200, "text/plain", response.c_str());
 }
 
-void decryptWifiAuth(){
+void decryptWifiAuth(BlockCipher *cipher){
   Serial.println("decrypting");
-  /*
-  .name        = "AES-128-ECB",
-    .key         = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F},
-    .plaintext   = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-                    0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF},
-    .ciphertext  = {0x69, 0xC4, 0xE0, 0xD8, 0x6A, 0x7B, 0x04, 0x30,
-                    0xD8, 0xCD, 0xB7, 0x80, 0x70, 0xB4, 0xC5, 0x5A}
-
-  */
-  const char ciphertext1[16]  = {0x69, 0xC4, 0xE0, 0xD8, 0x6A, 0x7B, 0x04, 0x30,
-                  0xD8, 0xCD, 0xB7, 0x80, 0x70, 0xB4, 0xC5, 0x5A};
-  const char keytext[16] = {0x5F,0x4D,0xCC,0x3B,0x5A,0xA7,0x65,0xD6,0x1D,0x83,0x27,0xDE,0xB8,0x82,0xCF,0x99};
-
+  // length of array , minus the null byte
+  int inputStringLength = sizeof(ciphertext) -1;
+  char stringBuffer[20];
+  sprintf(stringBuffer, "input length:%d", inputStringLength);
+  Serial.println(stringBuffer);
+  Serial.println(ciphertext);
+  Serial.println();
+  int decodedLength = Base64.decodedLength(ciphertext, inputStringLength);
+  sprintf(stringBuffer, "allocating bytes:%d", decodedLength);
+  Serial.println(stringBuffer);
+  char decodedString[decodedLength];
+  Base64.decode(decodedString, ciphertext, inputStringLength);
+  Serial.println(decodedString);
 
   Serial.println("setting key");
-  aes128.setKey((uint8_t *)keytext, sizeof keytext);
-  byte buffer[28];
+  cipher->setKey((uint8_t *)"turtlebot_3129_p", 16);
+  byte buffer[16];
   uint8_t * ciphertextBytes;
   Serial.println("decrypting cipher");
-  aes128.decryptBlock(buffer, (uint8_t *)ciphertext);
+  cipher->decryptBlock(buffer, (uint8_t *)decodedString);
 
   Serial.print("decrypted hex = ");
-  for (int i =0; i < 28 ; i++){
+  for (int i =0; i < 16 ; i++){
     Serial.print( buffer[i], HEX);
     Serial.print(" ");
   }
-
   Serial.print(" decrypted text = ");
-  char string[sizeof buffer];
-  memcpy(string, buffer, sizeof buffer);
-  string[sizeof buffer] = '\0';
+  char string[17];
+  memcpy(string, buffer, 16);
+  string[16]= '\0';
+  //need to strip spaces of the end of password
   password = string;
-  Serial.println(string);
+  Serial.println(password);
 
 }
 void setup(void){
@@ -122,7 +121,7 @@ void setup(void){
   right_servo.attach(right_servo_pin);
 
   Serial.begin(115200);
-  decryptWifiAuth();
+  decryptWifiAuth(&aes128);
   WiFi.begin(ssid, password);
   Serial.println("");
 
