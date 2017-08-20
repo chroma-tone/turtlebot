@@ -93,7 +93,6 @@ void decryptWifiAuth(BlockCipher *cipher){
   Serial.println(stringBuffer);
   char decodedString[decodedLength];
   Base64.decode(decodedString, ciphertext, inputStringLength);
-  Serial.println(decodedString);
 
   Serial.println("setting key");
   cipher->setKey((uint8_t *)"turtlebot_3129_p", 16);
